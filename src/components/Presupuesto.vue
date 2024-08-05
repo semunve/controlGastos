@@ -1,16 +1,27 @@
 <script setup>
 import { ref } from "vue";
+import AlertaVue from "./Alerta.vue";
 
 const presupuesto = ref(0);
+const error = ref("");
+const emit = defineEmits(["definir-presupuesto"]);
 
 const definirPresupuesto = () => {
-  if (presupuesto.value <= 0) {
-    alert("El presupuesto debe ser mayor a 0");
+  if (presupuesto.value <= 0 || presupuesto.value === "") {
+    error.value = "Presupuesto no valido";
+    setTimeout(() => {
+      error.value = "";
+    }, 2000);
+    return;
   }
+  emit("definir-presupuesto", presupuesto.value);
 };
 </script>
 <template>
   <form class="presupuesto" @submit.prevent="definirPresupuesto">
+    <AlertaVue v-if="error">
+      {{ error }}
+    </AlertaVue>
     <div class="campo">
       <label for="">Definir presupuesto</label>
       <input
