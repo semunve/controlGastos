@@ -4,6 +4,7 @@ import { ref, reactive } from "vue";
 import ControlPresupuesto from "./components/ControlPresupuesto.vue";
 import iconcoNuevoGasto from "./assets/img/nuevo-gasto.svg";
 import ModalVue from "./components/Modal.vue";
+import { generaId } from "./helpers";
 
 const modal = reactive({
   mostrar: false,
@@ -19,6 +20,8 @@ const gasto = reactive({
   id: null,
   fecha: Date.now(),
 });
+
+const gastos = ref([]);
 
 const definirPresupuesto = (cantidad) => {
   presupuesto.value = cantidad;
@@ -37,6 +40,21 @@ const cerrarModal = () => {
   setTimeout(() => {
     modal.mostrar = false;
   }, 300);
+};
+
+const guardarGasto = () => {
+  gastos.value.push({
+    ...gasto,
+    id: generaId(),
+  });
+  cerrarModal();
+  Object.assign(gasto, {
+    nombre: "",
+    cantidad: "",
+    categoria: "",
+    id: null,
+    fecha: Date.now(),
+  });
 };
 </script>
 
@@ -67,6 +85,7 @@ const cerrarModal = () => {
       <ModalVue
         v-if="modal.mostrar"
         @cerrar-modal="cerrarModal"
+        @guardar-gasto="guardarGasto"
         :modal="modal"
         v-model:nombre="gasto.nombre"
         v-model:cantidad="gasto.cantidad"

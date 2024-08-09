@@ -7,6 +7,7 @@ const error = ref("");
 
 const emit = defineEmits([
   "cerrar-modal",
+  "guardar-gasto",
   "update:nombre",
   "update:cantidad",
   "update:categoria",
@@ -48,7 +49,9 @@ const agregarGasto = () => {
     setTimeout(() => {
       error.value = "";
     }, 1500);
+    return;
   }
+  emit("guardar-gasto");
 };
 </script>
 
