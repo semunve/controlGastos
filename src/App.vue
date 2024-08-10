@@ -5,6 +5,7 @@ import ControlPresupuesto from "./components/ControlPresupuesto.vue";
 import iconcoNuevoGasto from "./assets/img/nuevo-gasto.svg";
 import ModalVue from "./components/Modal.vue";
 import { generaId } from "./helpers";
+import GastoVue from "./components/Gasto.vue";
 
 const modal = reactive({
   mostrar: false,
@@ -75,6 +76,10 @@ const guardarGasto = () => {
       </div>
     </header>
     <main v-if="presupuesto > 0">
+      <div class="listado-gastos contenedor">
+        <h2>{{ gastos.length > 0 ? "Gastos" : "No hay gastos" }}</h2>
+        <GastoVue v-for="gasto in gastos" :key="gasto.id" :gasto="gasto" />
+      </div>
       <div class="crear-gasto">
         <img
           :src="iconcoNuevoGasto"
@@ -160,5 +165,12 @@ header h1 {
 }
 .crear-gasto img:hover {
   cursor: pointer;
+}
+.listado-gastos {
+  margin-top: 10rem;
+}
+.listado-gastos h2 {
+  font-weight: 900;
+  color: var(--gris-oscuro);
 }
 </style>

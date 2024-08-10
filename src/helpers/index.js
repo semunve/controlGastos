@@ -10,3 +10,14 @@ export const generaId=()=>{
     const random=Math.random().toString(36).substring(2)
     return fecha+random;
 }
+
+export const formatoFecha=(fecha)=>{
+    const fechaNueva=new Date(fecha)
+    const opciones={
+        year:'numeric',
+        month:'long',
+        day:'2-digit'
+    }
+    return fechaNueva.toLocaleDateString('es-ES',opciones)
+
+}
