@@ -1,6 +1,6 @@
 <script setup>
 import Presupuesto from "./components/Presupuesto.vue";
-import { ref, reactive } from "vue";
+import { ref, reactive, watch } from "vue";
 import ControlPresupuesto from "./components/ControlPresupuesto.vue";
 import iconcoNuevoGasto from "./assets/img/nuevo-gasto.svg";
 import ModalVue from "./components/Modal.vue";
@@ -13,6 +13,7 @@ const modal = reactive({
 });
 const presupuesto = ref(0);
 const disponible = ref(0);
+const gastado = ref(0);
 
 const gasto = reactive({
   nombre: "",
@@ -23,6 +24,22 @@ const gasto = reactive({
 });
 
 const gastos = ref([]);
+
+watch(
+  gastos,
+  () => {
+    const totalGastado = gastos.value.reduce(
+      (total, gasto) => parseFloat(gasto.cantidad) + total,
+      0
+    );
+
+    gastado.value = totalGastado;
+    disponible.value = presupuesto.value - totalGastado;
+  },
+  {
+    deep: true,
+  }
+);
 
 const definirPresupuesto = (cantidad) => {
   presupuesto.value = cantidad;
@@ -60,7 +77,7 @@ const guardarGasto = () => {
 </script>
 
 <template>
-  <div>
+  <div :class="{ fijar: modal.mostrar }">
     <header>
       <h1>Planificador de gastos</h1>
       <div class="contenedor-header contenedor sombra">
@@ -72,6 +89,7 @@ const guardarGasto = () => {
           v-else
           :presupuesto="presupuesto"
           :disponible="disponible"
+          :gastado="gastado"
         />
       </div>
     </header>
@@ -92,6 +110,7 @@ const guardarGasto = () => {
         @cerrar-modal="cerrarModal"
         @guardar-gasto="guardarGasto"
         :modal="modal"
+        :disponible="disponible"
         v-model:nombre="gasto.nombre"
         v-model:cantidad="gasto.cantidad"
         v-model:categoria="gasto.categoria"
@@ -127,6 +146,10 @@ h1 {
 }
 h2 {
   font-size: 3rem;
+}
+.fijar {
+  overflow: hidden;
+  height: 100vh;
 }
 header {
   background-color: var(--azul);
