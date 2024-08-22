@@ -30,15 +30,20 @@ const props = defineProps({
     required: true,
   },
   disponible: {
+    type: [String, null],
+    required: true,
+  },
+  id: {
     type: Number,
     required: true,
   },
 });
+const yaGastado = props.cantidad;
 
 const agregarGasto = () => {
   //validar que no haya campos vacios
 
-  const { cantidad, categoria, nombre, disponible } = props;
+  const { cantidad, categoria, nombre, disponible, id } = props;
   if ([cantidad, nombre, categoria].includes("")) {
     error.value = "Todos los campos son obligatorios";
     setTimeout(() => {
@@ -55,14 +60,27 @@ const agregarGasto = () => {
     }, 1500);
     return;
   }
+  //validar que cantidad no sea mas que la disponible
 
-  if (cantidad > disponible) {
-    error.value =
-      "No hay suficiente dinero, su cantidad restante es de " + cantidad + "€";
-    setTimeout(() => {
-      error.value = "";
-    }, 3000);
-    return;
+  if (id) {
+    //tener en cuenta el gasto realizado
+    if (cantidad > yaGastado + disponible) {
+      error.value = "Has excedido el presupuesto";
+      setTimeout(() => {
+        error.value = "";
+      }, 2000);
+    }
+  } else {
+    if (cantidad > disponible) {
+      error.value =
+        "No hay suficiente dinero, su cantidad restante es de " +
+        cantidad +
+        "€";
+      setTimeout(() => {
+        error.value = "";
+      }, 3000);
+      return;
+    }
   }
 
   emit("guardar-gasto");
@@ -83,7 +101,7 @@ const agregarGasto = () => {
       :class="[modal.animar ? 'animar' : 'cerrar']"
     >
       <form class="nuevo-gasto" @submit.prevent="agregarGasto">
-        <legend>Añadir gasto</legend>
+        <legend>{{ id ? "Editar gasto" : "Añadir gasto" }}</legend>
         <AlertaVue v-if="error">{{ error }}</AlertaVue>
         <div class="campo">
           <label for="nombre">Nombre del gasto:</label>
@@ -122,8 +140,14 @@ const agregarGasto = () => {
             <option value="suscripciones">Suscripciones</option>
           </select>
         </div>
-        <input type="submit" value="Añadir gasto" />
+        <input
+          type="submit"
+          :value="[id ? 'Guardar cambios' : 'Añadir gasto']"
+        />
       </form>
+      <button type="button" class="btn-eliminar" v-if="yaGastado">
+        ELiminar gasto
+      </button>
     </div>
   </div>
 </template>
@@ -189,6 +213,20 @@ const agregarGasto = () => {
   background-color: var(--azul);
   color: var(--blanco);
   font-weight: 700;
+  cursor: pointer;
+}
+.btn-eliminar {
+  padding: 1rem;
+  width: 50%;
+  background-color: red;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--blanco);
+  margin: 5rem auto 0 auto;
+  display: block;
+  text-align: center;
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
 }
 </style>

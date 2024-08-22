@@ -41,6 +41,20 @@ watch(
   }
 );
 
+watch(
+  modal,
+  () => {
+    if (!modal.mostrar) {
+      //Reinicio de objeto para edición de gasto
+      reiniciarGasto();
+    }
+  },
+
+  {
+    deep: true,
+  }
+);
+
 const definirPresupuesto = (cantidad) => {
   presupuesto.value = cantidad;
   disponible.value = cantidad;
@@ -61,11 +75,22 @@ const cerrarModal = () => {
 };
 
 const guardarGasto = () => {
-  gastos.value.push({
-    ...gasto,
-    id: generaId(),
-  });
+  if (gasto.id) {
+    const { id } = gasto;
+    const i = gastos.value.findIndex((gasto) => gasto.id === id);
+    gastos.value[i] = { ...gasto };
+  } else {
+    gastos.value.push({
+      ...gasto,
+      id: generaId(),
+    });
+  }
+
   cerrarModal();
+  reiniciarGasto();
+};
+
+const reiniciarGasto = () => {
   Object.assign(gasto, {
     nombre: "",
     cantidad: "",
@@ -73,6 +98,12 @@ const guardarGasto = () => {
     id: null,
     fecha: Date.now(),
   });
+};
+
+const seleccionarGasto = (id) => {
+  const gastoEditar = gastos.value.filter((gasto) => gasto.id === id)[0];
+  Object.assign(gasto, gastoEditar);
+  mostrarModal();
 };
 </script>
 
@@ -96,7 +127,12 @@ const guardarGasto = () => {
     <main v-if="presupuesto > 0">
       <div class="listado-gastos contenedor">
         <h2>{{ gastos.length > 0 ? "Gastos" : "No hay gastos" }}</h2>
-        <GastoVue v-for="gasto in gastos" :key="gasto.id" :gasto="gasto" />
+        <GastoVue
+          v-for="gasto in gastos"
+          :key="gasto.id"
+          :gasto="gasto"
+          @seleccionar-gasto="seleccionarGasto"
+        />
       </div>
       <div class="crear-gasto">
         <img
@@ -111,6 +147,7 @@ const guardarGasto = () => {
         @guardar-gasto="guardarGasto"
         :modal="modal"
         :disponible="disponible"
+        :id="gasto.id"
         v-model:nombre="gasto.nombre"
         v-model:cantidad="gasto.cantidad"
         v-model:categoria="gasto.categoria"

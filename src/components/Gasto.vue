@@ -24,6 +24,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+defineEmits(["seleccionar-gasto"]);
 </script>
 
 <template>
@@ -37,7 +39,12 @@ const props = defineProps({
     </div>
     <div class="detalles">
       <p class="categoria">{{ gasto.categoria }}</p>
-      <p class="nombre">{{ gasto.nombre }}</p>
+      <p
+        class="nombre"
+        @click="(event) => $emit('seleccionar-gasto', gasto.id)"
+      >
+        {{ gasto.nombre }}
+      </p>
       <p class="fecha">
         Fecha: <span>{{ formatoFecha(gasto.fecha) }}</span>
       </p>
