@@ -1,12 +1,12 @@
 <script setup>
 import Presupuesto from "./components/Presupuesto.vue";
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import ControlPresupuesto from "./components/ControlPresupuesto.vue";
 import iconcoNuevoGasto from "./assets/img/nuevo-gasto.svg";
 import ModalVue from "./components/Modal.vue";
 import { generaId } from "./helpers";
 import GastoVue from "./components/Gasto.vue";
-
+import FiltrosVue from "./components/Filtros.vue";
 const modal = reactive({
   mostrar: false,
   animar: false,
@@ -14,6 +14,7 @@ const modal = reactive({
 const presupuesto = ref(0);
 const disponible = ref(0);
 const gastado = ref(0);
+const filtro = ref("");
 
 const gasto = reactive({
   nombre: "",
@@ -105,6 +106,20 @@ const seleccionarGasto = (id) => {
   Object.assign(gasto, gastoEditar);
   mostrarModal();
 };
+
+const eliminarGasto = () => {
+  gastos.value = gastos.value.filter(
+    (gastoState) => gastoState.id !== gasto.id
+  );
+  cerrarModal();
+};
+
+const gastosFiltrados = computed(() => {
+  if (filtro.value) {
+    return gastos.value.filter((gasto) => gasto.categoria === filtro.value);
+  }
+  return gastos.value;
+});
 </script>
 
 <template>
@@ -125,10 +140,11 @@ const seleccionarGasto = (id) => {
       </div>
     </header>
     <main v-if="presupuesto > 0">
+      <FiltrosVue v-model:filtro="filtro" />
       <div class="listado-gastos contenedor">
-        <h2>{{ gastos.length > 0 ? "Gastos" : "No hay gastos" }}</h2>
+        <h2>{{ gastosFiltrados.length > 0 ? "Gastos" : "No hay gastos" }}</h2>
         <GastoVue
-          v-for="gasto in gastos"
+          v-for="gasto in gastosFiltrados"
           :key="gasto.id"
           :gasto="gasto"
           @seleccionar-gasto="seleccionarGasto"
@@ -145,6 +161,7 @@ const seleccionarGasto = (id) => {
         v-if="modal.mostrar"
         @cerrar-modal="cerrarModal"
         @guardar-gasto="guardarGasto"
+        @eliminar-gasto="eliminarGasto"
         :modal="modal"
         :disponible="disponible"
         :id="gasto.id"

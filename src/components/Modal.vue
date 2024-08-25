@@ -11,6 +11,7 @@ const emit = defineEmits([
   "update:nombre",
   "update:cantidad",
   "update:categoria",
+  "eliminar-gasto",
 ]);
 const props = defineProps({
   modal: {
@@ -126,7 +127,7 @@ const agregarGasto = () => {
         <div class="campo">
           <label for="nombre">Categoria</label>
           <select
-            id="cegoria"
+            id="categoria"
             :value="categoria"
             @input="$emit('update:categoria', $event.target.value)"
           >
@@ -145,7 +146,12 @@ const agregarGasto = () => {
           :value="[id ? 'Guardar cambios' : 'Añadir gasto']"
         />
       </form>
-      <button type="button" class="btn-eliminar" v-if="yaGastado">
+      <button
+        type="button"
+        class="btn-eliminar"
+        v-if="yaGastado"
+        @click="($event) => $emit('eliminar-gasto')"
+      >
         ELiminar gasto
       </button>
     </div>
