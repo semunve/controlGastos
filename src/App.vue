@@ -1,6 +1,6 @@
 <script setup>
 import Presupuesto from "./components/Presupuesto.vue";
-import { ref, reactive, watch, computed } from "vue";
+import { ref, reactive, watch, computed, onMounted } from "vue";
 import ControlPresupuesto from "./components/ControlPresupuesto.vue";
 import iconcoNuevoGasto from "./assets/img/nuevo-gasto.svg";
 import ModalVue from "./components/Modal.vue";
@@ -36,6 +36,7 @@ watch(
 
     gastado.value = totalGastado;
     disponible.value = presupuesto.value - totalGastado;
+    localStorage.setItem("gastos", JSON.stringify(gastos.value));
   },
   {
     deep: true,
@@ -55,6 +56,23 @@ watch(
     deep: true,
   }
 );
+
+watch(presupuesto, () => {
+  localStorage.setItem("presupuesto", presupuesto.value);
+});
+
+onMounted(() => {
+  const presupuestoStorage = localStorage.getItem("presupuesto");
+
+  if (presupuestoStorage) {
+    presupuesto.value = Number(presupuestoStorage);
+    disponible.value = Number(presupuestoStorage);
+  }
+  const gastoStorage = localStorage.getItem("gastos");
+  if (gastoStorage) {
+    gastos.value = JSON.parse(gastoStorage);
+  }
+});
 
 const definirPresupuesto = (cantidad) => {
   presupuesto.value = cantidad;
@@ -120,6 +138,12 @@ const gastosFiltrados = computed(() => {
   }
   return gastos.value;
 });
+const resetApp = () => {
+  if (confirm("¿Desea resetear todo el gasto?")) {
+    gastos.value = [];
+    presupuesto.value = 0;
+  }
+};
 </script>
 
 <template>
@@ -136,6 +160,7 @@ const gastosFiltrados = computed(() => {
           :presupuesto="presupuesto"
           :disponible="disponible"
           :gastado="gastado"
+          @reset-app="resetApp"
         />
       </div>
     </header>
